@@ -1,6 +1,26 @@
+'''
+Author: PlumpDolphin
+Date: March 7, 2024
+
+Description: 
+    Provides functions for augmenting AI image training sets with the purpose of preventing over-fitting
+    in domains where sample sizes are inherently small, such as medical imaging data.
+
+License:
+    The code in this file is licensed under the
+    Revised 3-Clause BSD License.
+    For details, see https://opensource.org/licenses/BSD-3-Clause
+'''
+
+
+
+import os, os.path
 import random
+
 import numpy as np
 from PIL import Image, ImageFilter
+
+
 
 
 
@@ -95,6 +115,11 @@ class AugmentedImage():
         # This function only exists to prevent the need of typing `<AugmentedImage>.img.show()`
         self.img.show()
 
+    def save(self, path):
+        ''' Saves the image to a file path '''
+        # This function only exists to prevent the need of typing `<AugmentedImage>.img.save()`
+        self.img.save( path )
+
 
 
 
@@ -148,15 +173,52 @@ def generate_variants(aug_img, count):
 
 
 if __name__ == '__main__':
+    # Specify image extensions
+    img_ext = ['png', 'jpg']
+
+    # Source folder
+    source_dir = 'Train'
+    export_dir = 'Export'
+
+    # Variant count
+    variant_count = 5
+
+
+
     # Open up dataset image
-    im = AugmentedImage.open('Train/Moderate_Demented/moderate_17.jpg')
-    im.show()
-    input()
-    im.fireflies(0.1, 128).blur(0.5).contrast(1.2).show()
-    exit()
+    for root, _, files in os.walk(source_dir):
+        for file in files:
 
-    variants = generate_variants(im, 5)
+            # Skip if extension is not a permitted image extension
+            if file.split('.')[-1] not in img_ext:
+                continue
 
-    for v in variants:
-        v.show()
-        v.mirror().show()
+            # Get source path for image
+            path = (os.path.join(root, file))
+            path_rel = os.path.relpath(path, source_dir)
+
+            # Load image
+            im = AugmentedImage.open(path)
+
+            # Generate variant images
+            variants = generate_variants(im, variant_count)
+
+            # Create files from variants
+            for i, v in enumerate(variants):
+                # Generate path to export to
+                path_export = os.path.join(export_dir, path_rel)
+                
+                # Make sure folders exist
+                os.makedirs(os.path.dirname(path_export), exist_ok = True)
+
+                # Parse name elements
+                args = path_export.split('.')
+                name = '.'.join(args[:-1])
+                extension = args[-1]
+
+                # Save variant to file
+                v.save( f'{name}_{i}.{extension}' )
+
+                # Save mirrored variant to file
+                v.mirror().save( f'{name}_{i}m.{extension}' )
+    
