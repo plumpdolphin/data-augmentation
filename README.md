@@ -10,3 +10,11 @@ This project provides tools for modifying image data for AI training purposes. I
 - Gaussian Blur: Add Gaussian blur to images.
 - Brightness Adjustment: Adjust the brightness of images.
 - Contrast Adjustment: Adjust the contrast of images.
+
+### Installation
+
+To use this project, you'll need Python installed on your system. You can install the required dependencies using pip:
+
+```bash
+pip install -r requirements.txt
+```
